@@ -1,0 +1,22 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Prevent Python from writing .pyc files & buffer output
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy source code and data
+COPY src/ ./src/
+COPY data/ ./data/
+
+# Cloud Run injects PORT at runtime (defaults to 8080)
+ENV PORT=8080
+EXPOSE 8080
+
+# Run Streamlit configured for container deployment
+CMD ["sh", "-c", "streamlit run src/app.py --server.port=${PORT} --server.address=0.0.0.0 --server.enableCORS=false --server.headless=true"]
